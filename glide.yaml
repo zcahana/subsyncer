@@ -1,0 +1,4 @@
+package: github.com/zcahana/subsyncer
+import:
+  - package: github.com/kkdai/mstranslator
+  - package: github.com/blevesearch/bleve
