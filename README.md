@@ -1,6 +1,7 @@
 # Subsyncer
 
 Subsyncer is a tool for automatic synchronization of subtitle files.  
+
 It works by comparing an input subtitle file to a "reference" subtitle file,
 assumed to be synchronized properly. The subtitle files are analyzed, using machine
 translation and indexing techniques, and the input subtitle file is then re-synchronized
