@@ -51,8 +51,8 @@ func (bis *bleveIndexedSubtitle) initialize() error {
 }
 
 func (bis *bleveIndexedSubtitle) Search(text string) (*SubtitleEntry, error) {
-	query := query.NewMatchPhraseQuery(text)
-	req := bleve.NewSearchRequestOptions(query, 1, 0, false)
+	q := query.NewQueryStringQuery(text)
+	req := bleve.NewSearchRequestOptions(q, 1, 0, false)
 
 	res, err := bis.index.Search(req)
 	if err != nil {
