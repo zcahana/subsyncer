@@ -1,6 +1,9 @@
 package main
 
-import "testing"
+import (
+	"strings"
+	"testing"
+)
 
 var testSubtitle = &SubtitleFile{
 	Entries: []*SubtitleEntry{
@@ -48,7 +51,30 @@ func TestIndexedSubtitleSearchExact(t *testing.T) {
 			}
 		}
 	}
+}
 
+func TestIndexedSubtitleSearchJoinedLines(t *testing.T) {
+	indexedSub, err := NewIndexedSubtitle(testSubtitle)
+	if err != nil {
+		t.Fatalf("Expected no error to occur while indexing subtitle, got error: %v", err)
+	}
+
+	for _, entry := range testSubtitle.Entries {
+		text := strings.Join(entry.Text, " ")
+		resEntry, err := indexedSub.Search(text)
+		if err != nil {
+			t.Fatalf("Got error while searching entry %d: %v", entry.Index, err)
+		}
+
+		if resEntry == nil {
+			t.Fatalf("Got nil entry while searching entry %d", entry.Index)
+		}
+
+		if !equalSubtitleEntries(entry, resEntry) {
+			t.Errorf("Got wrong result while searching entry %d: Expected %v, got %v",
+				entry.Index, entry, resEntry)
+		}
+	}
 }
 
 func TestIndexedSubtitleSearchProximity(t *testing.T) {
@@ -57,17 +83,59 @@ func TestIndexedSubtitleSearchProximity(t *testing.T) {
 		t.Fatalf("Expected no error to occur while indexing subtitle, got error: %v", err)
 	}
 
-	resEntry, err := indexedSub.Search("Something bad happend")
+	cases := []struct {
+		text  string
+		entry *SubtitleEntry
+	}{
+		{"in a far land", testSubtitle.Entries[0]},
+		{"in a very far land", testSubtitle.Entries[0]},
+		{"Something bad happend", testSubtitle.Entries[1]},
+		{"Something horrible occurred", testSubtitle.Entries[1]},
+		{"They lived", testSubtitle.Entries[2]},
+		{"All they lived", testSubtitle.Entries[2]},
+	}
+
+	for i, c := range cases {
+		resEntry, err := indexedSub.Search(c.text)
+		if err != nil {
+			t.Fatalf("Got error while searching (case %d): %v", i, err)
+		}
+
+		if resEntry == nil {
+			t.Fatalf("Got nil entry while searching (case %d)", i)
+		}
+
+		if !equalSubtitleEntries(c.entry, resEntry) {
+			t.Errorf("Got wrong entry while searching (case %d): Expected %v, got %v", i, c.entry, resEntry)
+		}
+	}
+}
+
+func TestIndexedSubtitleSearchNoMatch(t *testing.T) {
+	indexedSub, err := NewIndexedSubtitle(testSubtitle)
 	if err != nil {
-		t.Fatalf("Got error while searching: %v", err)
+		t.Fatalf("Expected no error to occur while indexing subtitle, got error: %v", err)
 	}
 
-	if resEntry == nil {
-		t.Fatalf("Got nil entry while searching")
+	cases := []struct {
+		text string
+	}{
+		{"This phrases are completely unrelated"},
+		{"And must return no match"},
+		{"Even if they have are somehow similar terms"},
+		{"Or some common ideas from time to time"},
+		{"Still it's far enough to be matched"},
 	}
 
-	if !equalSubtitleEntries(testSubtitle.Entries[1], resEntry) {
-		t.Errorf("Got wrong entry while searching: Expected %v, got %v", testSubtitle.Entries[1], resEntry)
+	for i, c := range cases {
+		resEntry, err := indexedSub.Search(c.text)
+		if err != nil {
+			t.Fatalf("Got error while searching (case %d): %v", i, err)
+		}
+
+		if resEntry != nil {
+			t.Fatalf("Expected nil entry while searching (case %d), got entry %d", i, resEntry.Index)
+		}
 	}
 }
 
