@@ -8,6 +8,10 @@ import (
 	"github.com/blevesearch/bleve/search/query"
 )
 
+const (
+	minHitScore = 0.25
+)
+
 type IndexedSubtitle interface {
 	Search(text string) (*SubtitleEntry, error)
 }
@@ -65,6 +69,11 @@ func (bis *bleveIndexedSubtitle) Search(text string) (*SubtitleEntry, error) {
 	}
 
 	hit := res.Hits[0]
+
+	if hit.Score < minHitScore {
+		// TODO: should that be an error?
+		return nil, nil
+	}
 
 	i, err := strconv.Atoi(hit.ID)
 	if err != nil {

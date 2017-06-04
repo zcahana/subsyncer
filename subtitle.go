@@ -30,9 +30,11 @@ type SubtitleEntry struct {
 }
 
 func (f *SubtitleFile) Shift(duration time.Duration) error {
+	// TODO implement
 	return nil
 }
 
 func (f *SubtitleFile) Scale(factor float32) error {
+	// TODO implement
 	return nil
 }
