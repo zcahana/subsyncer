@@ -28,7 +28,7 @@ Entry 1 line 1
 	assertEntry(t, sub.Entries[0], 1, "1m15s760ms", "1m17s479ms", "Entry 1 line 1", "Entry 1 line 2")
 }
 
-func SRTParserReadSingleEntrySingleLine(t *testing.T) {
+func TestSRTParserReadSingleEntrySingleLine(t *testing.T) {
 	content := `1
 00:01:15,760 --> 00:01:17,479
 Entry 1 line 1
@@ -50,7 +50,7 @@ Entry 1 line 1
 	assertEntry(t, sub.Entries[0], 1, "1m15s760ms", "1m17s479ms", "Entry 1 line 1")
 }
 
-func SRTParserReadMultiEntries(t *testing.T) {
+func TestSRTParserReadMultiEntries(t *testing.T) {
 	content := `1
 00:01:15,760 --> 00:01:17,479
 Entry 1 line 1
